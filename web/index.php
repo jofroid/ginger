@@ -80,6 +80,25 @@ $app->delete('/v1/cotisations/:cotisation', function ($cotisation) use ($app, $m
 	$app->render('success.json.php', array('result'=>$r));
 });
 
+// récupération des exterieurs
+$app->get('/v1/exts', function () use ($app, $myAuth) {
+	$r = $myAuth->ginger->getExts();
+	$app->render('success.json.php', array('result'=>$r));
+});
+
+// set d'une personne
+$app->post('/v1/:login/edit', function ($login) use ($app, $myAuth) {
+	$nom = $app->request()->params('nom');
+	$prenom = $app->request()->params('prenom');
+	$mail = $app->request()->params('mail');
+	$is_adulte = $app->request()->params('is_adulte');
+	if (empty($nom) or empty($prenom) or empty($mail) or empty($is_adulte) )
+		throw new \Koala\ApiException(400);
+	
+	$r = $myAuth->ginger->setPersonne($login, $nom, $prenom, $mail, $is_adulte);
+	$app->render('success.json.php', array('result'=>$r));
+});
+
 /***********************************************************************
  *                             Launch
  ***********************************************************************/

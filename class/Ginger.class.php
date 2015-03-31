@@ -257,5 +257,44 @@ class Ginger {
       return 'WTF ?';
     }
   }
-}
+ 
+	protected function getExts(){
+		$q = PersonneQuery::create();
+ 	 	$personnes = $q->filterByType(4)
+ 	 	               ->find();
 
+ 	 	$liste = array();
+ 	 	foreach ($personnes as $personne) {
+ 	 	 	$liste[] = array('login' => $personne->getLogin(),
+ 	 	 	                 'nom' => $personne->getNom(),
+ 	 	 	                 'prenom' => $personne->getPrenom(),
+ 	 	 	                 'mail' => $personne->getMail(),
+ 	 	 	                 'is_adulte' => $personne->getIsAdulte());
+ 	 	}
+
+		return $liste;
+	}
+	
+	public function setPersonne($login, $nom, $prenom, $mail, $is_adulte) {
+		// vérification des droits en écriture et accès aux cotisations
+		if(!$this->auth->getDroitEcriture() || !$this->auth->getDroitCotisations())
+			throw new ApiException(403);
+
+		// récupération de la personne concernée
+		$personne = PersonneQuery::create()
+						->findOneByLogin($login);
+		if(!$personne)
+			throw new ApiException(404);
+
+		// edition de la personne
+		$personne->setNom($nom);
+		$personne->setPrenom($nom);
+		$personne->setMail($nom);
+		$personne->setIsAdult($is_adulte);
+		// sauvegarde
+		$personne->save();
+
+		return $personne->getLogin();
+	}
+}
+	
